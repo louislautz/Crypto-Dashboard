@@ -9,14 +9,17 @@ def get_conversion(selector):
     EURtoUSD = float(euroToDollar["price"])
     USDtoEUR = 1 / float(EURtoUSD)
 
-    if selector == "USDtoEUR":
-        return USDtoEUR
-    elif selector == "EURtoUSD":
-        return EURtoUSD
-    else:
-        raise ValueError(f"{selector} is not a valid conversion request! \n\
-            Conversion requests must have the format CURtoCUR, where CUR are two different currencies")
-        
+    try:
+        if selector == "USDtoEUR":
+            return USDtoEUR
+        elif selector == "EURtoUSD":
+            return EURtoUSD
+        else:
+            raise ValueError(f"{selector} is not a valid conversion request! \n\
+                Conversion requests must have the format CURtoCUR, where CUR are two different currencies")
+    except ValueError as err:
+        print(err)
+ 
  
 def get_price(symbol, USDEURconversion):
     """Saves current price of the parsed ticker symbol in euros to the provided dictionary"""
