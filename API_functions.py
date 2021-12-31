@@ -62,10 +62,28 @@ def get_account_balance():
         
 
 def get_my_balances():
-    """Saves non-zero balances in dictionary"""
+    """Returns non-zero balances as dictionary"""
     myBalances = {}
     account = client.get_account()
     for asset in account['balances']:
         if float(asset["free"]) != 0:
             myBalances[f"{asset['asset']}"] = float(asset["free"])
     return myBalances
+
+
+def get_full_symbol_name(coin="ALL"):
+    """Returns a dictionary with the symbol as key and the full symbol name as value"""
+    coins = get_my_balances()
+    assets = client.get_margin_all_assets()
+    names = {}
+    for asset in assets:
+        if asset['assetName'] in coins.keys():
+            names[f"{asset['assetName']}"] = asset['assetFullName']
+
+    if coin != "ALL":                           # Returns only one specified coin name when argument is passed
+        try:
+            return names[coin]
+        except KeyError as err:
+            print(f"{err} is not a valid coin symbol")      
+    else:                                       # Returns all coin names
+        return names
