@@ -15,11 +15,15 @@ def parse_to_base():
 def index():
     return render_template("index.html")
 
-@app.route("/tutorial")
+@app.route("/tutorial/")
 def tutorial():
     return render_template("tutorial.html")
 
-@app.route("/crypto/<coin>")
+@app.route("/transactions")
+def transactions():
+    return render_template("transactions.html")
+
+@app.route("/crypto/<coin>/")
 def coin_view(coin):
     coin_balances = get_my_balances()
     current_balance = f'{coin_balances[coin]:.8f}'
