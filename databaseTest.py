@@ -1,13 +1,23 @@
 import pandas as pd
 
+SELL_EXCEL_RAW_FILE = 'Data/Excel/Export Sell History.xlsx'
+BUY_EXCEL_RAW_FILE = 'Data/Excel/Export Buy History.xlsx'
+SELL_CSV_CONVERTED = 'Data/CSV/Sell.csv'
+BUY_CSV_CONVERTED = 'Data/CSV/Buy.csv'
+SELL_FULL_CSV_FILE = 'Data/CSV/Sell_Transactions.csv'
+BUY_FULL_CSV_FILE = 'Data/CSV/Buy_Transactions.csv'
+
+
 def getSpentMoney(data):
     """Returns the total money spent from the Credit Card"""
     selection = data.loc[data['Method'] == "Credit Card"]
     return selection['Amount'].sum()
 
+
 def filterBySymbol(data, symbol):
     """Filters the dataframe by a certain symbol"""
     return data.loc[data['Coin'] == symbol]
+
 
 def cleanBuyData(data):
     """Cleans up buy data"""
@@ -74,59 +84,53 @@ def recFiFo(sellOrder, buyList, currentSellAmount, indecesList ,listIndex=0):
         return profit
 
 
-def FiFo(buyData, sellData, symbol):
+def FiFo(buyData, sellData):
     """Custom First In First Out Algorithm. Returns profit"""
-    # Filters and sorts relevant data. Only used in loops to cut down runtime
-    buys = filterBySymbol(buyData, symbol).sort_values(by='Timestamp')
-    sells = filterBySymbol(sellData, symbol).sort_values(by='Timestamp')
 
-    # Looping through both list
-    for index, sell in sells.iterrows():
-        # List comprehension to store indeces of buy orders that were bought before the sell order and are not fully sold yet
-        boughtBefore = [i for i, buy in buys.iterrows() if (buy['Timestamp'] < sell['Timestamp'] and buyData.loc[i, 'Coins left'] != 0)]
-        
-        # pass boughtBefore to recursive function and selects correct entry from the whole dataframe
-        if boughtBefore and sell['Profit'] == 0:
-            sellData.loc[index, 'Profit'] = recFiFo(sell, buyData, sell['Amount'], boughtBefore)    # sets the profit of the current sell order
+    # Iterates through all sell orders and groups them by coin
+    for coin in set(sellData['Coin']):
+
+        # Filters and sorts relevant data. Only used in loops to cut down runtime
+        buys = filterBySymbol(buyData, coin).sort_values(by='Timestamp')
+        sells = filterBySymbol(sellData, coin).sort_values(by='Timestamp')
+
+        # Looping through both list
+        for index, sell in sells.iterrows():
+            # List comprehension to store indeces of buy orders that were bought before the sell order and are not fully sold yet
+            boughtBefore = [i for i, buy in buys.iterrows() if (buy['Timestamp'] < sell['Timestamp'] and buyData.loc[i, 'Coins left'] != 0)]
+            
+            # pass boughtBefore to recursive function and selects correct entry from the whole dataframe
+            if boughtBefore and sell['Profit'] == 0:
+                sellData.loc[index, 'Profit'] = recFiFo(sell, buyData, sell['Amount'], boughtBefore)    # sets the profit of the current sell order
+    
+    return [buyData, sellData]
+
+
+def readToDataframes():
+    # Convert xlsx to csv
+    read_file = pd.read_excel(BUY_EXCEL_RAW_FILE)
+    read_file.to_csv (BUY_CSV_CONVERTED, index = None, header=True)
+    read_file = pd.read_excel(SELL_EXCEL_RAW_FILE)
+    read_file.to_csv (SELL_CSV_CONVERTED, index = None, header=True)
+
+    buy_df = pd.read_csv(BUY_CSV_CONVERTED)
+    buy_df = cleanBuyData(buy_df)
+
+    sell_df = pd.read_csv(SELL_CSV_CONVERTED)
+    sell_df = cleanSellData(sell_df)
+
+    buy_df.to_csv(BUY_FULL_CSV_FILE)
+    sell_df.to_csv(SELL_FULL_CSV_FILE)
+
+    return [buy_df, sell_df]
 
 
 def main():
-    # Convert xlsx to csv
-    read_file = pd.read_excel('Data/Excel/Export Buy History.xlsx')
-    read_file.to_csv ('Data/CSV/Buy.csv', index = None, header=True)
-    read_file = pd.read_excel('Data/Excel/Export Sell History.xlsx')
-    read_file.to_csv ('Data/CSV/Sell.csv', index = None, header=True)
 
-    buy_df = pd.read_csv('Data/CSV/Buy.csv')
-    buy_df = cleanBuyData(buy_df)
+    buy, sell = readToDataframes()
 
-    sell_df = pd.read_csv('Data/CSV/Sell.csv')
-    sell_df = cleanSellData(sell_df)
+    print(FiFo(buy, sell))
 
-    FiFo(buy_df, sell_df, 'BAT')
-    FiFo(buy_df, sell_df, 'BTC')
-    FiFo(buy_df, sell_df, 'ETH')
-
-
-    for coin in set(sell_df['Coin']):
-        test = sell_df.loc[sell_df['Coin']==coin]
-        print(test)
-
-
-    # coin_set = set(buy_df['Coin'])
-
-    buy_df.to_csv('Data/CSV/Buy_Transactions.csv')
-    sell_df.to_csv('Data/CSV/Sell_Transactions.csv')
-
-    buySecondRound = pd.read_csv('Data/CSV/Buy_Transactions.csv', index_col=0)
-    sellSecondRound = pd.read_csv('Data/CSV/Sell_Transactions.csv', index_col=0)
-
-    FiFo(buySecondRound, sellSecondRound, 'BAT')
-    FiFo(buySecondRound, sellSecondRound, 'BTC')
-    FiFo(buySecondRound, sellSecondRound, 'ETH')
-
-    # print(buySecondRound)
-    # print(sellSecondRound)
 
 if __name__ == '__main__':
     main()
