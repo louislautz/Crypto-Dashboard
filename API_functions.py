@@ -26,7 +26,7 @@ def get_price(symbol, USDEURconversion):
     dictionary = {}
     try:
         currentPrice = client.get_symbol_ticker(symbol = f"{symbol}EUR")
-        dictionary[symbol + "EUR"] = currentPrice["price"]
+        dictionary[symbol + "EUR"] = float(currentPrice["price"])
     except Exception as e:
         if e.message == "Invalid symbol.":
             try:

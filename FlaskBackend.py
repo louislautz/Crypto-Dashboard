@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from API_functions import get_my_balances, get_full_symbol_name
+from API_functions import get_my_balances, get_full_symbol_name, get_price, get_conversion
 
 app = Flask(__name__)
 
@@ -26,9 +26,17 @@ def transactions():
 @app.route("/crypto/<coin>/")
 def coin_view(coin):
     coin_balances = get_my_balances()
-    current_balance = f'{coin_balances[coin]:.8f}'
+    coin_balance = coin_balances[coin]
     coin_name = get_full_symbol_name(coin)
-    return render_template("coin_view.html", coin=coin, balance=current_balance, coinName=coin_name)
+    coin_price = get_price(coin, get_conversion("USDtoEUR"))[coin+'EUR']
+    coin_value = float(coin_balance) * coin_price
+
+    return render_template("coin_view.html",
+        coin=coin,
+        balance=f'{coin_balances[coin]:.8f} {coin}',
+        coinName=coin_name,
+        coinPrice=f'{coin_price:.8f} €',
+        coinValue=f'{coin_value:.8f} €')
 
 if __name__ == "__main__":
     app.run()
