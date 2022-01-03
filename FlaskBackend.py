@@ -1,7 +1,28 @@
 from flask import Flask, render_template
-from API_functions import get_my_balances, get_full_symbol_name, get_price, get_conversion
+from pandas.core.frame import DataFrame
+from API_functions import *
+from database_functions import readToDataframes
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///BuyTransactions.sqlite3'
+app.config['SQLALCHEMY_BINDS'] = {
+    'SellTransactions': 'sqlite:///SellTransactions.sqlite3'
+}
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+engine = create_engine('sqlite:///Data/SQLite/database_buys.db', echo=True)
+sqlite_connection = engine.connect()
+
+df = readToDataframes()[0]
+
+sqlite_table= "BuyData"
+df.to_sql(sqlite_table, sqlite_connection, if_exists='fail')
+sqlite_connection.close()
+
 
 # Runs before templates are rendered
 # Passes values to base.html
