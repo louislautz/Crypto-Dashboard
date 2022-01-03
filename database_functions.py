@@ -1,4 +1,6 @@
 import pandas as pd
+from os import listdir
+from os.path import isfile, join
 
 SELL_EXCEL_RAW_FILE = 'Data/Excel/Export Sell History.xlsx'
 BUY_EXCEL_RAW_FILE = 'Data/Excel/Export Buy History.xlsx'
@@ -6,6 +8,22 @@ SELL_CSV_CONVERTED = 'Data/CSV/Sell.csv'
 BUY_CSV_CONVERTED = 'Data/CSV/Buy.csv'
 SELL_FULL_CSV_FILE = 'Data/CSV/Sell_Transactions.csv'
 BUY_FULL_CSV_FILE = 'Data/CSV/Buy_Transactions.csv'
+
+
+# sellFiles = []
+# buyFiles = []
+# onlyfiles = [f for f in listdir('Data/Excel/') if isfile(join('Data/Excel/', f))]
+# for file in onlyfiles:
+#     if file.find("Sell") != -1:
+#         print(f"SELL: {file}")
+#         sellFiles.append(file)
+#     elif file.find("Buy") != -1:
+#         print(f"BUY: {file}")
+#         buyFiles.append(file)
+#     else:
+#         print("Invalid file")
+# print(sellFiles, buyFiles)
+
 
 
 def getSpentMoney(data):
@@ -129,7 +147,7 @@ def main():
 
     buy, sell = readToDataframes()
 
-    print(FiFo(buy, sell))
+    #print(FiFo(buy, sell))
 
 
 if __name__ == '__main__':

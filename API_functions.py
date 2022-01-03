@@ -26,12 +26,12 @@ def get_price(symbol, USDEURconversion):
     dictionary = {}
     try:
         currentPrice = client.get_symbol_ticker(symbol = f"{symbol}EUR")
-        dictionary[symbol + "EUR"] = float(currentPrice["price"])
+        dictionary[symbol] = float(currentPrice["price"])
     except Exception as e:
         if e.message == "Invalid symbol.":
             try:
                 currentPrice = client.get_symbol_ticker(symbol = f"{symbol}USDT")
-                dictionary[symbol + "EUR"] = USDEURconversion * float(currentPrice["price"])
+                dictionary[symbol] = USDEURconversion * float(currentPrice["price"])
             except Exception as ee:
                 print(ee.message) 
         else:
@@ -45,6 +45,8 @@ def get_prices(coins):
     for coin in coins:
         if coin != "EUR":
             myPrices.update(get_price(coin, get_conversion("USDtoEUR")))
+        else:
+            myPrices.update({'EUR': 1})
     return myPrices
 
 
