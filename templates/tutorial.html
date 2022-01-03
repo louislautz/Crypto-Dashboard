@@ -1,17 +1,24 @@
 {% extends "base.html" %}
 {% set active_page = "tutorial" %}
 {% block title %}Tutorial{% endblock %}
+
 {% block content %}
     <h1 class="display-1">Welcome to the tutorial page!</h1>
 
-    <p class="text-primary">.text-primary</p>
-    <p class="text-secondary">.text-secondary</p>
-    <p class="text-success">.text-success</p>
-    <p class="text-danger">.text-danger</p>
-    <p class="text-warning">.text-warning</p>
-    <p class="text-info">.text-info</p>
-    <p class="text-light bg-dark">.text-light</p>
-    <p class="text-dark">.text-dark</p>
-    <p class="text-muted">.text-muted</p>
-    <p class="text-white bg-dark">.text-white</p>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Active</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+        </li>
+      </ul>
+
+      
 {% endblock %}

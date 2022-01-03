@@ -2,6 +2,10 @@
 {% set active_page = "index" %}
 {% block title %}Home Page{% endblock %}
 {% block content %}
-    <h1 class="display-1">Testing main page</h1>
+    <h1 class="display-1">Crypto Dashboard</h1>
+    <h5>All Balances:</h5>
+    {% for balance in coinBalances %}
+        <p>{{coinBalances[balance]}} {{balance}} ≈ {{coinValues[balance]}}</p>
+    {% endfor %}
 {% endblock %}
 
