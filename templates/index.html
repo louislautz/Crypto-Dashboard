@@ -3,6 +3,9 @@
 {% block title %}Home Page{% endblock %}
 {% block content %}
     <h1 class="display-1">Crypto Dashboard</h1>
+    <h5>Total Balance:</h5>
+    <p>≈ {{totalBalance}}</p>
+
     <h5>All Balances:</h5>
     {% for balance in coinBalances %}
         <p>{{coinBalances[balance]}} {{balance}} ≈ {{coinValues[balance]}}</p>

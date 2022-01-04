@@ -1,6 +1,7 @@
 import pandas as pd
 from os import listdir
 from os.path import isfile, join
+from DatabaseClasses import Transactions, Buys, Sells
 
 SELL_EXCEL_RAW_FILE = 'Data/Excel/Export Sell History.xlsx'
 BUY_EXCEL_RAW_FILE = 'Data/Excel/Export Buy History.xlsx'
@@ -125,6 +126,7 @@ def FiFo(buyData, sellData):
 
 
 def readToDataframes():
+    """Reads data files and returns cleaned data in dataframes"""
     # Convert xlsx to csv
     read_file = pd.read_excel(BUY_EXCEL_RAW_FILE)
     read_file.to_csv (BUY_CSV_CONVERTED, index = None, header=True)
@@ -137,17 +139,87 @@ def readToDataframes():
     sell_df = pd.read_csv(SELL_CSV_CONVERTED)
     sell_df = cleanSellData(sell_df)
 
+    buy_df, sell_df = FiFo(buy_df, sell_df)
+
     buy_df.to_csv(BUY_FULL_CSV_FILE)
     sell_df.to_csv(SELL_FULL_CSV_FILE)
 
     return [buy_df, sell_df]
 
 
+def get_db_kwargs(item):
+    """Returns a dictionary or key-value pairs for **kwargs"""
+    dictionary = {}
+    for key in item.keys():
+        dictionary[key] = item[key]
+    #     print(f"Key: {key}, Value: {item[key]}")
+    #print(dictionary)
+    return dictionary
+
+
+def rename_db_columns(dataframe):
+    """Renames column in a dataframe to match with the database requirements"""
+    dataframe = dataframe.rename(columns={
+        "Timestamp": "timestamp",
+        "Final Amount": "final_amount",
+        "Currency": "currency",
+        "Amount": "amount",
+        "Price": "price",
+        "Fees": "fees",
+        "Method": "method",
+        "Transaction ID": "id"})
+    if 'Profit' in dataframe:
+        dataframe = dataframe.rename(columns={"Profit": "profit"})
+    if 'Coins left' in dataframe:
+        dataframe = dataframe.rename(columns={"Coins left": "coins_left"})
+    return dataframe
+
+
+def get_or_create(model, **kwargs):
+    """Checks whether an entry is already in the databases and creates it if it is not"""
+    instance = get_instance(model, **kwargs)
+    if instance is None:
+        instance = create_instance(model, **kwargs)
+    return instance
+    
+
+def get_instance(model, **kwargs):
+    """Returns first instance found"""
+    try:
+        return db.session.query(model).filter_by(**kwargs).first()
+    except NoResultFound:
+        return
+
+
+def create_instance(model, **kwargs):
+    """Creates an instance of the model"""
+    try:
+        instance = model(**kwargs)
+        db.session.add(instance)
+        db.session.flush()
+    except Exception as msg:
+        mtext = f'model:{model}, args:{kwargs} => msg:{msg}'
+        db.session.rollback()
+        raise(mtext)
+    return instance
+
+
+
 def main():
 
     buy, sell = readToDataframes()
 
-    #print(FiFo(buy, sell))
+    sell_orders = []
+
+    # for _, item in rename_db_columns(buy).iterrows():
+    #     print(get_db_kwargs(item))
+    # print("__________________________")
+    for _, item in rename_db_columns(sell).iterrows():
+        sellOrder = get_or_create(Sells, **get_db_kwargs(item))
+        sell_orders.append(sellOrder)
+
+    print(sell_orders)
+
 
 
 if __name__ == '__main__':
