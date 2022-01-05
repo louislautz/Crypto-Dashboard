@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% set active_page = "coin_view" %}
+{% block title %}{{coin}} view{% endblock %}
+{% block content %}
+    <h1 class="display-1">{{coin}}</h1>
+    <h4><p class="text-secondary">{{coinName}}</p></h4>
+
+    <h3>Current {{coin}} Balance:</h3>
+    <p>{{balance}} ≈ {{coinValue}}</p>
+
+    <h3>Current {{coin}} Price:</h3>
+    <p>{{coinPrice}}</p>
+{% endblock %}
