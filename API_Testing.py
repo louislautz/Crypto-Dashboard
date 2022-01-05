@@ -1,4 +1,4 @@
-from API_functions import *
+from .Dashboard.API_functions import *
 
 test_API_functions = False
 

@@ -1,29 +1,21 @@
-from flask import Flask, render_template
-from pandas.core.frame import DataFrame
+# External Packages
+from flask import Blueprint, render_template
+
+# Internal Files
 from API_functions import *
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
 
+mainRoutes = Blueprint('mainRoutes', __name__)
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Data/SQLite/BuyTransactions.sqlite3'
-app.config['SQLALCHEMY_BINDS'] = {
-    'SellTransactions': 'sqlite:///Data/SQLite/SellTransactions.sqlite3'
-}
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-db.init_app(app)
 
 # Runs before templates are rendered
 # Passes values to base.html
-@app.context_processor
+@mainRoutes.context_processor
 def parse_to_base():
     coins = get_my_balances()
     return dict(coins=coins)
 
 
-@app.route("/")
+@mainRoutes.route("/")
 def index():
     coin_balances = get_my_balances()
     coin_prices = get_prices(coin_balances.keys())
@@ -38,15 +30,15 @@ def index():
         #print(f"Values: {coin_values[coin]} Prices: {coin_prices[coin]} Balances: {coin_balances[coin]}")
     return render_template("index.html", coinBalances=coin_balances, coinPrices=coin_prices, coinValues=coin_values, totalBalance=f'{total_balance:.2f} €')
 
-@app.route("/tutorial/")
+@mainRoutes.route("/tutorial/")
 def tutorial():
     return render_template("tutorial.html")
 
-@app.route("/transactions")
+@mainRoutes.route("/transactions")
 def transactions():
     return render_template("transactions.html")
 
-@app.route("/crypto/<coin>/")
+@mainRoutes.route("/crypto/<coin>/")
 def coin_view(coin):
     coin_balances = get_my_balances()
     coin_balance = coin_balances[coin]
@@ -60,7 +52,3 @@ def coin_view(coin):
         coinName=coin_name,
         coinPrice=f'{coin_price:.8f} €' if coin_price < 0 else f'{coin_price:.2f} €',
         coinValue=f'{coin_value:.8f} €' if coin_value < 0 else f'{coin_value:.2f} €')
-
-if __name__ == "__main__":
-    db.create_all()
-    app.run(debug=True)

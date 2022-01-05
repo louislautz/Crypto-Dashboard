@@ -1,5 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
-from FlaskBackend import db
+# Internal Files
+from .extensions import db
 
 class Transactions(db.Model):
     """Parent class with all shared columns and get_or_create() function"""

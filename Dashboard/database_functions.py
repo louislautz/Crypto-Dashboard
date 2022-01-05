@@ -1,7 +1,12 @@
+# External Packages
 import pandas as pd
 from os import listdir
 from os.path import isfile, join
-from DatabaseClasses import Transactions, Buys, Sells
+
+# Internal Files
+from .DatabaseClasses import Transactions, Buys, Sells
+from .extensions import db
+
 
 SELL_EXCEL_RAW_FILE = 'Data/Excel/Export Sell History.xlsx'
 BUY_EXCEL_RAW_FILE = 'Data/Excel/Export Buy History.xlsx'
