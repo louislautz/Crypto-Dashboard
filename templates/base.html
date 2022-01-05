@@ -15,13 +15,13 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                  <a class="nav-link {{ 'active' if active_page == 'index' else '' }}" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
+                  <a class="nav-link {{ 'active' if active_page == 'index' else '' }}" href="{{ url_for('mainRoutes.index') }}">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link {{ 'active' if active_page == 'tutorial' else '' }}" href="{{ url_for('tutorial') }}">Tutorial</a>
+                  <a class="nav-link {{ 'active' if active_page == 'tutorial' else '' }}" href="{{ url_for('mainRoutes.tutorial') }}">Tutorial</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link {{ 'active' if active_page == 'transactions' else '' }}" href="{{ url_for('transactions') }}">Transactions</a>
+                  <a class="nav-link {{ 'active' if active_page == 'transactions' else '' }}" href="{{ url_for('mainRoutes.transactions') }}">Transactions</a>
                 </li>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle {{ 'active' if active_page == 'coin_view' else '' }}" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -30,7 +30,7 @@
                   <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
                     {% for coin in coins.keys() %}
                       {% if coin != "EUR" %}
-                        <a class="dropdown-item text-light" href="{{ url_for('coin_view', coin=coin) }}">{{coin}}</a>
+                        <a class="dropdown-item text-light" href="{{ url_for('mainRoutes.coin_view', coin=coin) }}">{{coin}}</a>
                       {% endif %}
                     {% endfor %}
                     <div class="dropdown-divider"></div>
