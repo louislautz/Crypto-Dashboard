@@ -2,7 +2,10 @@
 from flask import Blueprint, render_template
 
 # Internal Files
-from API_functions import *
+from .API_functions import *
+from .database_functions import get_or_create, readToDataframes, rename_db_columns, get_db_kwargs
+from .databaseClasses import Sells
+from .extensions import db
 
 mainRoutes = Blueprint('mainRoutes', __name__)
 
@@ -36,6 +39,19 @@ def tutorial():
 
 @mainRoutes.route("/transactions")
 def transactions():
+    buy, sell = readToDataframes()
+
+    sell_orders = []
+
+    # for _, item in rename_db_columns(buy).iterrows():
+    #     print(get_db_kwargs(item))
+    # print("__________________________")
+    for _, item in rename_db_columns(sell).iterrows():
+        sellOrder = get_or_create(Sells, **get_db_kwargs(item))
+        sell_orders.append(sellOrder)
+
+    print(sell_orders)
+    db.session.commit()
     return render_template("transactions.html")
 
 @mainRoutes.route("/crypto/<coin>/")

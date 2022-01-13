@@ -1,22 +1,17 @@
 # External Packages
-from flask import Flask, Blueprint
+from flask import Flask
 
 # Internal Files
-from views import mainRoutes
-from extensions import db
+from .extensions import db
+from .views import mainRoutes   # This prevents circular imports
 
 
-def create_app(config_file='settings.py'):
-    app = Flask(__name__, template_folder='../templates')
-    
-    app.config.from_pyfile(config_file)
+app = Flask(__name__, template_folder='./templates')
 
-    db.init_app(app)
+app.config.from_pyfile('../settings.py')
 
-    app.register_blueprint(mainRoutes)
-    
-    return app
+db.init_app(app)
+db.create_all(app=app)
 
-if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True)
+app.register_blueprint(mainRoutes)
+

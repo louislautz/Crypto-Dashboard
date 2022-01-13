@@ -2,9 +2,10 @@
 import pandas as pd
 from os import listdir
 from os.path import isfile, join
+from sqlalchemy.orm.exc import NoResultFound
 
 # Internal Files
-from .DatabaseClasses import Transactions, Buys, Sells
+from .databaseClasses import Buys, Sells
 from .extensions import db
 
 
@@ -169,6 +170,7 @@ def rename_db_columns(dataframe):
         "Final Amount": "final_amount",
         "Currency": "currency",
         "Amount": "amount",
+        "Coin": "coin",
         "Price": "price",
         "Fees": "fees",
         "Method": "method",
@@ -182,9 +184,15 @@ def rename_db_columns(dataframe):
 
 def get_or_create(model, **kwargs):
     """Checks whether an entry is already in the databases and creates it if it is not"""
+    print(f"{model}")
     instance = get_instance(model, **kwargs)
     if instance is None:
+        print("Instance NOT Found")
         instance = create_instance(model, **kwargs)
+    else:
+        print("Instance Found")
+
+    print(instance)
     return instance
     
 
@@ -203,15 +211,15 @@ def create_instance(model, **kwargs):
         db.session.add(instance)
         db.session.flush()
     except Exception as msg:
-        mtext = f'model:{model}, args:{kwargs} => msg:{msg}'
+        mtext = 'model:{}, args:{} => msg:{}'
+        print(mtext.format(model, kwargs, msg))
         db.session.rollback()
-        raise(mtext)
+        raise(msg)
     return instance
 
 
 
 def main():
-
     buy, sell = readToDataframes()
 
     sell_orders = []
