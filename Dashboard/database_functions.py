@@ -184,22 +184,17 @@ def rename_db_columns(dataframe):
 
 def get_or_create(model, **kwargs):
     """Checks whether an entry is already in the databases and creates it if it is not"""
-    print(f"{model}")
     instance = get_instance(model, **kwargs)
     if instance is None:
-        print("Instance NOT Found")
         instance = create_instance(model, **kwargs)
-    else:
-        print("Instance Found")
 
-    print(instance)
     return instance
     
 
 def get_instance(model, **kwargs):
     """Returns first instance found"""
     try:
-        return db.session.query(model).filter_by(**kwargs).first()
+        return db.session.query(model).filter_by(id = kwargs['id']).first()
     except NoResultFound:
         return
 
@@ -221,19 +216,17 @@ def create_instance(model, **kwargs):
 
 def main():
     buy, sell = readToDataframes()
+    buy = rename_db_columns(buy)
+    sell = rename_db_columns(sell)
 
+    buy_orders = []
     sell_orders = []
 
-    # for _, item in rename_db_columns(buy).iterrows():
-    #     print(get_db_kwargs(item))
-    # print("__________________________")
-    for _, item in rename_db_columns(sell).iterrows():
+    for _, item in buy.iterrows():
+        buyOrder = get_or_create(Buys, **get_db_kwargs(item))
+        buy_orders.append(buyOrder)
+    for _, item in sell.iterrows():
         sellOrder = get_or_create(Sells, **get_db_kwargs(item))
         sell_orders.append(sellOrder)
 
-    print(sell_orders)
-
-
-
-if __name__ == '__main__':
-    main()
+    db.session.commit()
