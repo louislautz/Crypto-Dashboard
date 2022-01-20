@@ -3,8 +3,8 @@ from flask import Blueprint, render_template
 
 # Internal Files
 from .API_functions import *
-from .database_functions import get_or_create, readToDataframes, rename_db_columns, get_db_kwargs
-from .databaseClasses import Sells
+from .database_functions import get_or_create, readToDataframes, rename_db_columns, get_db_kwargs, main
+from .databaseClasses import Sells, Buys
 from .extensions import db
 
 mainRoutes = Blueprint('mainRoutes', __name__)
@@ -30,7 +30,6 @@ def index():
         coin_values[coin] = f'{calculated_value:.8f} €' if calculated_value < 1 else f'{calculated_value:.2f} €'
         coin_prices[coin] = f'{coin_prices[coin]:.8f}'
         coin_balances[coin] = f'{coin_balances[coin]:11.8f}'
-        #print(f"Values: {coin_values[coin]} Prices: {coin_prices[coin]} Balances: {coin_balances[coin]}")
     return render_template("index.html", coinBalances=coin_balances, coinPrices=coin_prices, coinValues=coin_values, totalBalance=f'{total_balance:.2f} €')
 
 @mainRoutes.route("/tutorial/")
@@ -39,20 +38,20 @@ def tutorial():
 
 @mainRoutes.route("/transactions")
 def transactions():
-    buy, sell = readToDataframes()
+    main()
+    # sell_orders = db.session.query(Sells).filter(Sells.id.in_(sell['Transaction ID'])).all()
+    sell_orders = db.session.query(Sells)
+    sell_keys = Sells.__table__.columns.keys()
+    buy_orders = db.session.query(Buys)
+    buy_keys = Buys.__table__.columns.keys()
 
-    sell_orders = []
+    context = {}
+    context.update({'sellOrders': sell_orders,
+                    'sellKeys': sell_keys,
+                    'buyOrders': buy_orders,
+                    'buyKeys': buy_keys})
 
-    # for _, item in rename_db_columns(buy).iterrows():
-    #     print(get_db_kwargs(item))
-    # print("__________________________")
-    for _, item in rename_db_columns(sell).iterrows():
-        sellOrder = get_or_create(Sells, **get_db_kwargs(item))
-        sell_orders.append(sellOrder)
-
-    print(sell_orders)
-    db.session.commit()
-    return render_template("transactions.html")
+    return render_template("transactions.html", **context)
 
 @mainRoutes.route("/crypto/<coin>/")
 def coin_view(coin):

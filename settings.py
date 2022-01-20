@@ -1,8 +1,11 @@
-SQLALCHEMY_DATABASE_URI = 'sqlite:///../Data/SQLite/BuyTransactions.sqlite3'
+from socketserver import ThreadingUnixDatagramServer
+
+
+SQLALCHEMY_DATABASE_URI = 'sqlite:///../Data/SQLite/BuyTransactions.db'
 SQLALCHEMY_BINDS = {
-    'SellTransactions': 'sqlite:///../Data/SQLite/SellTransactions.sqlite3'
+    'SellTransactions': 'sqlite:///../Data/SQLite/SellTransactions.db'
 }
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 DEBUG = True
-SQLALCHEMY_ECHO = True
+SQLALCHEMY_ECHO = False

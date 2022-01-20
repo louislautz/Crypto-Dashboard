@@ -158,8 +158,6 @@ def get_db_kwargs(item):
     dictionary = {}
     for key in item.keys():
         dictionary[key] = item[key]
-    #     print(f"Key: {key}, Value: {item[key]}")
-    #print(dictionary)
     return dictionary
 
 
