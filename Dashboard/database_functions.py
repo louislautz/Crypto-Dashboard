@@ -1,5 +1,7 @@
 # External Packages
 import pandas as pd
+import re
+import os
 from os import listdir
 from os.path import isfile, join
 from sqlalchemy.orm.exc import NoResultFound
@@ -16,21 +18,49 @@ BUY_CSV_CONVERTED = 'Data/CSV/Buy.csv'
 SELL_FULL_CSV_FILE = 'Data/CSV/Sell_Transactions.csv'
 BUY_FULL_CSV_FILE = 'Data/CSV/Buy_Transactions.csv'
 
+EXCEL_DATA_LOCATION = 'Data/Excel/'
 
-# sellFiles = []
-# buyFiles = []
-# onlyfiles = [f for f in listdir('Data/Excel/') if isfile(join('Data/Excel/', f))]
-# for file in onlyfiles:
-#     if file.find("Sell") != -1:
-#         print(f"SELL: {file}")
-#         sellFiles.append(file)
-#     elif file.find("Buy") != -1:
-#         print(f"BUY: {file}")
-#         buyFiles.append(file)
-#     else:
-#         print("Invalid file")
-# print(sellFiles, buyFiles)
 
+def sortMonths(month):
+    """Sort function for sorting the months in getMonthsFromFile"""
+    months = {"JAN":0, "FEB":1, "MAR":2, "APR":3, "MAY":4, "JUN":5, "JUL":6, "AUG":7, "SEP":8, "OCT":9, "NOV":10, "DEC":11 }
+    return months[month]
+
+
+def getFileNames():
+    """Returns two lists with all buy or sell files"""
+    onlyfiles = [f for f in listdir('Data/Excel/') if isfile(join('Data/Excel/', f))]
+    sellFiles = [file for file in onlyfiles if file.find("Sell") != -1]
+    buyFiles = [file for file in onlyfiles if file.find("Buy") != -1]
+    return [buyFiles, sellFiles]
+
+
+def getMonthsFromFiles(files):
+    """Returns a list of months. [MAY, JUN, JUL, AUG]"""
+    fileNames = []
+    for file in files:
+        try:
+            filename = re.findall(r"_\w{3}_", file)[0]  # Saves pattern matching _JUN_ or _MAY_
+            filename = filename.replace('_', '')        # Removes _
+            fileNames.append(filename)                  # Saves month to list
+        except IndexError as err:
+            print(err)
+    fileNames.sort(key=sortMonths)
+    return fileNames
+
+
+def readAllFiles(filelist):
+    if len(filelist) > 1:
+        dataframe = pd.read_excel(EXCEL_DATA_LOCATION + filelist[0])
+        for file in filelist[1:]:
+            next_file = pd.read_excel(EXCEL_DATA_LOCATION + file)
+            dataframe = dataframe.append(next_file)
+    elif len(filelist) == 1:
+        dataframe = pd.read_excel(EXCEL_DATA_LOCATION + filelist[0])
+    else:
+        dataframe = pd.DataFrame()
+        raise FileNotFoundError('No Transaction Files provided')
+    return dataframe
 
 
 def getSpentMoney(data):
@@ -81,12 +111,12 @@ def cleanSellData(data):
 def cleanCommonData(data):
     """Preforms data mutation thats common for sell AND buy data"""
     # Renaming
-    data = data.rename(columns={"Date(UTC+1)": "Timestamp"})
+    data = data.rename(columns={"Date(UTC+2)": "Timestamp"})    # TODO Date(UTC+2) changes depending on where you download the Binance data from
 
     # Formatting and creating new columns
     data['Fees'] = data['Fees'].str.split(' ', expand=True)[0]
     data['Price'] = data['Price'].str.split(' ', expand=True)[0]
-    data['Timestamp'] = pd.to_datetime(data['Timestamp'], format='%Y/%m/%d %H:%M:%S')
+    data['Timestamp'] = pd.to_datetime(data['Timestamp'], format='%Y-%m-%d %H:%M:%S')
 
     # Changing column types
     data['Final Amount'] = data['Final Amount'].astype(float)
@@ -134,9 +164,11 @@ def FiFo(buyData, sellData):
 def readToDataframes():
     """Reads data files and returns cleaned data in dataframes"""
     # Convert xlsx to csv
-    read_file = pd.read_excel(BUY_EXCEL_RAW_FILE)
+    buyFiles, sellFiles = getFileNames()
+
+    read_file = readAllFiles(buyFiles)
     read_file.to_csv (BUY_CSV_CONVERTED, index = None, header=True)
-    read_file = pd.read_excel(SELL_EXCEL_RAW_FILE)
+    read_file = readAllFiles(sellFiles)
     read_file.to_csv (SELL_CSV_CONVERTED, index = None, header=True)
 
     buy_df = pd.read_csv(BUY_CSV_CONVERTED)
@@ -146,6 +178,9 @@ def readToDataframes():
     sell_df = cleanSellData(sell_df)
 
     buy_df, sell_df = FiFo(buy_df, sell_df)
+
+    buy_df = rename_db_columns(buy_df)
+    sell_df = rename_db_columns(sell_df)
 
     buy_df.to_csv(BUY_FULL_CSV_FILE)
     sell_df.to_csv(SELL_FULL_CSV_FILE)
@@ -213,9 +248,16 @@ def create_instance(model, **kwargs):
 
 
 def main():
+    # fileDictionary = {}
+    # buyFiles, sellFiles = getFileNames()
+    # fileDictionary["buyFiles"] = getMonthsFromFiles(buyFiles)
+    # fileDictionary["sellFiles"] = getMonthsFromFiles(sellFiles)
+    # print(buyFiles, sellFiles)
+    # print(fileDictionary)
+
     buy, sell = readToDataframes()
-    buy = rename_db_columns(buy)
-    sell = rename_db_columns(sell)
+    # buy = rename_db_columns(buy)
+    # sell = rename_db_columns(sell)
 
     buy_orders = []
     sell_orders = []

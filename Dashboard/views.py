@@ -39,7 +39,6 @@ def tutorial():
 @mainRoutes.route("/transactions")
 def transactions():
     main()
-    # sell_orders = db.session.query(Sells).filter(Sells.id.in_(sell['Transaction ID'])).all()
     sell_orders = db.session.query(Sells)
     sell_keys = Sells.__table__.columns.keys()
     buy_orders = db.session.query(Buys)
