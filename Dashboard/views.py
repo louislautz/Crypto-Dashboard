@@ -1,5 +1,5 @@
 # External Packages
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, flash, redirect, url_for
 
 # Internal Files
 from .API_functions import *
@@ -35,6 +35,11 @@ def index():
 @mainRoutes.route("/tutorial/")
 def tutorial():
     return render_template("tutorial.html")
+
+@mainRoutes.route("/buy_coin/")
+def buy_coin():
+    flash("This page is coming in Stage 2 of the project")
+    return redirect(url_for('mainRoutes.index'))
 
 @mainRoutes.route("/transactions")
 def transactions():
