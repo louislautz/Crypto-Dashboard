@@ -120,7 +120,7 @@ def cleanCommonData(data):
     # Formatting and creating new columns
     data['Fees'] = data['Fees'].str.split(' ', expand=True)[0]
     data['Price'] = data['Price'].str.split(' ', expand=True)[0]
-    data['Timestamp'] = pd.to_datetime(data['Timestamp'])       # TODO Change format of timestamp
+    data['Timestamp'] = pd.to_datetime(data['Timestamp'])
 
     # Changing column types
     data['Final Amount'] = data['Final Amount'].astype(float)
@@ -150,7 +150,7 @@ def FiFo(buyData, sellData):
     for coin in set(sellData['Coin']):
 
         # Filters and sorts relevant data. Only used in loops to cut down runtime
-        buys = filterBySymbol(buyData, coin).sort_values(by='Timestamp')    #TODO Issue because timestamp is now string, not Datetime object
+        buys = filterBySymbol(buyData, coin).sort_values(by='Timestamp')
         sells = filterBySymbol(sellData, coin).sort_values(by='Timestamp')
 
         # Looping through both list
