@@ -63,10 +63,14 @@ def readAllFiles(filelist):
     return dataframe
 
 
-def getSpentMoney(data):
+def getSpentMoney():
     """Returns the total money spent from the Credit Card"""
-    selection = data.loc[data['Method'] == "Credit Card"]
-    return selection['Amount'].sum()
+    selection = db.session.query(Buys).filter(Buys.method == 'Credit Card').all()
+    #selection = db.session.query(func.sum(Buys.amount)).filter(Buys.method == 'Credit Card').one()
+    total = 0
+    for item in selection:
+        total += item.amount
+    return total
 
 
 def filterBySymbol(data, symbol):
@@ -81,12 +85,12 @@ def cleanBuyData(data):
     data[['Amount', 'Currency']] = data['Amount'].str.split(' ', expand=True)
     data[['Final Amount', 'Coin']] = data['Final Amount'].str.split(' ', expand=True)
 
+    data['Coins left'] = data['Final Amount']
+    data['Coins left'] = data['Coins left'].astype(float)
+    
     # Format common data
     new_data = cleanCommonData(data)
 
-    new_data['Coins left'] = new_data['Final Amount']
-    new_data['Coins left'] = new_data['Coins left'].astype(float)
-    
     # Reordering columns
     new_data = new_data[['Coin', 'Final Amount', 'Coins left', 'Amount', 'Currency', 'Price', 'Fees', 'Timestamp', 'Method', 'Transaction ID']]
     return new_data
@@ -116,7 +120,7 @@ def cleanCommonData(data):
     # Formatting and creating new columns
     data['Fees'] = data['Fees'].str.split(' ', expand=True)[0]
     data['Price'] = data['Price'].str.split(' ', expand=True)[0]
-    data['Timestamp'] = pd.to_datetime(data['Timestamp'], format='%Y-%m-%d %H:%M:%S')
+    data['Timestamp'] = pd.to_datetime(data['Timestamp'])       # TODO Change format of timestamp
 
     # Changing column types
     data['Final Amount'] = data['Final Amount'].astype(float)
@@ -146,7 +150,7 @@ def FiFo(buyData, sellData):
     for coin in set(sellData['Coin']):
 
         # Filters and sorts relevant data. Only used in loops to cut down runtime
-        buys = filterBySymbol(buyData, coin).sort_values(by='Timestamp')
+        buys = filterBySymbol(buyData, coin).sort_values(by='Timestamp')    #TODO Issue because timestamp is now string, not Datetime object
         sells = filterBySymbol(sellData, coin).sort_values(by='Timestamp')
 
         # Looping through both list
@@ -256,8 +260,6 @@ def main():
     # print(fileDictionary)
 
     buy, sell = readToDataframes()
-    # buy = rename_db_columns(buy)
-    # sell = rename_db_columns(sell)
 
     buy_orders = []
     sell_orders = []

@@ -37,7 +37,11 @@
               {% for sell in sellOrders %}
                 <tr>
                   {% for key in sellKeys %}
-                    <td style="white-space: nowrap">{{ sell[key] }}</td>
+                    {% if key == 'timestamp' %}
+                      <td style="white-space: nowrap">{{ sell[key].strftime('%d.%m.%Y - %H:%M:%S') }}</td>
+                    {% else %}
+                      <td style="white-space: nowrap">{{ sell[key] }}</td>
+                    {% endif %}
                   {% endfor %}
                 </tr>
               {% endfor %}
@@ -58,7 +62,11 @@
               {% for buy in buyOrders %}
                 <tr>
                 {% for key in buyKeys %}
-                  <td style="white-space: nowrap">{{ buy[key] }}</td>    
+                  {% if key == 'timestamp' %}
+                    <td style="white-space: nowrap">{{ buy[key].strftime('%d.%m.%Y - %H:%M:%S') }}</td>
+                  {% else %}
+                    <td style="white-space: nowrap">{{ buy[key] }}</td>
+                  {% endif %}  
                 {% endfor %}
                 </tr>
               {% endfor %}

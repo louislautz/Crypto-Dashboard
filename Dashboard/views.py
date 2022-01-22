@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, flash, redirect, url_for
 
 # Internal Files
 from .API_functions import *
-from .database_functions import get_or_create, readToDataframes, rename_db_columns, get_db_kwargs, main
+from .database_functions import main, getSpentMoney 
 from .databaseClasses import Sells, Buys
 from .extensions import db
 
@@ -20,6 +20,7 @@ def parse_to_base():
 
 @mainRoutes.route("/")
 def index():
+    total_money_spent = getSpentMoney()
     coin_balances = get_my_balances()
     coin_prices = get_prices(coin_balances.keys())
     coin_values = {}
@@ -30,7 +31,7 @@ def index():
         coin_values[coin] = f'{calculated_value:.8f} €' if calculated_value < 1 else f'{calculated_value:.2f} €'
         coin_prices[coin] = f'{coin_prices[coin]:.8f}'
         coin_balances[coin] = f'{coin_balances[coin]:11.8f}'
-    return render_template("index.html", coinBalances=coin_balances, coinPrices=coin_prices, coinValues=coin_values, totalBalance=f'{total_balance:.2f} €')
+    return render_template("index.html", coinBalances=coin_balances, coinPrices=coin_prices, coinValues=coin_values, totalBalance=f'{total_balance:.2f} €', totalMoneySpent = total_money_spent)
 
 @mainRoutes.route("/tutorial/")
 def tutorial():
