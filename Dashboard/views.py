@@ -1,8 +1,11 @@
 # External Packages
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, flash, redirect, url_for
 
 # Internal Files
-from API_functions import *
+from .API_functions import *
+from .database_functions import main, getSpentMoney 
+from .databaseClasses import Sells, Buys
+from .extensions import db
 
 mainRoutes = Blueprint('mainRoutes', __name__)
 
@@ -17,6 +20,7 @@ def parse_to_base():
 
 @mainRoutes.route("/")
 def index():
+    total_money_spent = getSpentMoney()
     coin_balances = get_my_balances()
     coin_prices = get_prices(coin_balances.keys())
     coin_values = {}
@@ -27,16 +31,32 @@ def index():
         coin_values[coin] = f'{calculated_value:.8f} €' if calculated_value < 1 else f'{calculated_value:.2f} €'
         coin_prices[coin] = f'{coin_prices[coin]:.8f}'
         coin_balances[coin] = f'{coin_balances[coin]:11.8f}'
-        #print(f"Values: {coin_values[coin]} Prices: {coin_prices[coin]} Balances: {coin_balances[coin]}")
-    return render_template("index.html", coinBalances=coin_balances, coinPrices=coin_prices, coinValues=coin_values, totalBalance=f'{total_balance:.2f} €')
+    return render_template("index.html", coinBalances=coin_balances, coinPrices=coin_prices, coinValues=coin_values, totalBalance=f'{total_balance:.2f} €', totalMoneySpent = total_money_spent)
 
 @mainRoutes.route("/tutorial/")
 def tutorial():
     return render_template("tutorial.html")
 
+@mainRoutes.route("/buy_coin/")
+def buy_coin():
+    flash("This page is coming in Stage 2 of the project")
+    return redirect(url_for('mainRoutes.index'))
+
 @mainRoutes.route("/transactions")
 def transactions():
-    return render_template("transactions.html")
+    main()
+    sell_orders = db.session.query(Sells)
+    sell_keys = Sells.__table__.columns.keys()
+    buy_orders = db.session.query(Buys)
+    buy_keys = Buys.__table__.columns.keys()
+
+    context = {}
+    context.update({'sellOrders': sell_orders,
+                    'sellKeys': sell_keys,
+                    'buyOrders': buy_orders,
+                    'buyKeys': buy_keys})
+
+    return render_template("transactions.html", **context)
 
 @mainRoutes.route("/crypto/<coin>/")
 def coin_view(coin):

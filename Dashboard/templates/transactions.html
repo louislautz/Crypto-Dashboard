@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% set active_page = "transactions" %}
+{% block title %}Transactions{% endblock %}
+
+{% block stylesheet %}{% endblock %}
+
+{% block content %}
+  <h1 class="display-1">Transactions</h1>
+
+  <div class="container mb-3 mt-3">
+    <p> Do this stuff here: <a href=https://blog.miguelgrinberg.com/post/beautiful-interactive-tables-for-your-flask-templates>CLICK ON IT!</a></p>
+  </div>
+
+  <div class="container-fluid">
+    <div class="container my-5">
+      <nav>
+        <div class="nav nav-pills" id="nav-tab" role="tablist">
+  
+          <button class="nav-link active" id="nav-sell-tab" data-bs-toggle="tab" data-bs-target="#nav-sell" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Sell Orders</button>
+
+          <button class="nav-link" id="nav-buy-tab" data-bs-toggle="tab" data-bs-target="#nav-buy" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Buy Orders</button>
+  
+        </div>
+      </nav>
+      <div class="tab-content" id="nav-tabContent">
+  
+        <div class="tab-pane fade show active p-3" id="nav-sell" role="tabpanel" aria-labelledby="nav-sell-tab">
+          <table id="sellData" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                {% for key in sellKeys %}
+                  <th>{{ key }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for sell in sellOrders %}
+                <tr>
+                  {% for key in sellKeys %}
+                    {% if key == 'timestamp' %}
+                      <td style="white-space: nowrap">{{ sell[key].strftime('%d.%m.%Y - %H:%M:%S') }}</td>
+                    {% else %}
+                      <td style="white-space: nowrap">{{ sell[key] }}</td>
+                    {% endif %}
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+  
+        <div class="tab-pane fade p-3" id="nav-buy" role="tabpanel" aria-labelledby="nav-buy-tab">
+          <table id="buyData" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                {% for key in buyKeys %}
+                  <th>{{ key }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for buy in buyOrders %}
+                <tr>
+                {% for key in buyKeys %}
+                  {% if key == 'timestamp' %}
+                    <td style="white-space: nowrap">{{ buy[key].strftime('%d.%m.%Y - %H:%M:%S') }}</td>
+                  {% else %}
+                    <td style="white-space: nowrap">{{ buy[key] }}</td>
+                  {% endif %}  
+                {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  
+
+  {% block scripts %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+  {% endblock %}
+
+{% endblock %}
