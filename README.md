@@ -32,6 +32,8 @@ Everything visually pleasing and easy to navigate
 ## Current State of Development
 #### <i>As of 25. Jan 2022</i>
 
+:exclamation: <b> The project won't work yet if you clone it. I still need to add a better way to import the transaction data </b> :exclamation:
+
 Currently I am working on Stage 1 of the project. 
 
 ![](Images/Homescreen_Screenshot.png)\
