@@ -35,13 +35,26 @@
               {% endfor %}
               <div class="dropdown-divider"></div>
               <a class="dropdown-item text-light" href="{{ url_for('mainRoutes.buy_coin') }}">Buy a new coin</a>
-            </div>        <!--TODO Add Settings panel here -->
+            </div>
+          </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link dropdown-toggle" href="#settings" role="button" data-toggle="collapse" aria-haspopup="true" aria-expanded="false" aria-controls="settings">
+              Settings
+            </a>
           </li>
         </ul>
       </div>
     </nav>
+
+    <div class="collapse" id="settings" style="z-index: 3; position: absolute; right: 1em;">
+      <div class="card card-body">
+        Settings
+      </div>
+    </div>
     
-    <div class="container-fluid">
+    <div class="container-fluid" style="position: relative;">
       {% block content %}{% endblock %}
     </div>
 
