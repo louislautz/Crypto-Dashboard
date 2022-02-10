@@ -1,6 +1,3 @@
-from socketserver import ThreadingUnixDatagramServer
-
-
 SQLALCHEMY_DATABASE_URI = 'sqlite:///../Data/SQLite/BuyTransactions.db'
 SQLALCHEMY_BINDS = {
     'SellTransactions': 'sqlite:///../Data/SQLite/SellTransactions.db'
