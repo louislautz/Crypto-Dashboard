@@ -1,5 +1,7 @@
 # Crypto-Dashboard
 
+:exclamation: <b> The project has been abandoned </b> :exclamation:
+
 ## Roadmap
 
 ### Stage 1
